@@ -4,21 +4,11 @@ import utime
 import math
 import _thread
 from ssd1306 import SSD1306_I2C
+import framebuf
 
-class App:
-    current_page = None
-    
-    boot_page = None
-    main_page = None
-    stats_page = None
-    
-    def __init__():
-        self.boot_page = BootPage()
-        self.main_page = MainPage()
-        self.stats_page = StatsPage()
-        
-    class BootPage: #def __init__():
-        def render(oled):
+class App:    
+    class BootPage:
+        def render(self, oled):
             for i in range(64):
                 oled.fill(0)
                 oled.text("Zekiah-A:", 26, (int(i/2)) - 4)
@@ -26,36 +16,59 @@ class App:
                 time.sleep(0.01)
                 oled.show()
 
-        class MainPage:
-            def render(oled):
-                # HUD title
-                oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
-                oled.hline(0, 8, 128, 1)
-
-                # Main left section
-                oled.text("Spd:", 0, 16)
-                oled.hline(0, 28, 64, 2)
-                oled.text("Tme:", 0, 32)
-                oled.hline(0, 44, 64, 2)
-                oled.text("Avg:", 0, 48)
-                oled.hline(0, 60, 64, 2)
-                
-                #Main left/right secrion separator
-                # Main right section, usable space: 64 * 112 
-                oled.vline(64, 16, 64, 2)
-
+    class MainPage:
+        @property #speed getter
+        def speed(self):
+            return self._speed
+        
+        @speed.setter # speed setter
+        def speed(self, value):
+            self._speed = value
+        
+        def __init__(self):
+            self._speed = 0
+        
+        def render(self, oled):
+            # HUD title
+            oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
+            oled.hline(0, 8, 128, 1)
+            # Main left section
+            oled.text("Spd:", 0, 16) #txt, x, y
+            oled.hline(0, 28, 64, 2)
+            oled.text("Tme:", 0, 32)
+            oled.hline(0, 44, 64, 2)
+            oled.text("Avg:", 0, 48)
+            oled.hline(0, 60, 64, 2)
+            #Main left/right secrion separator
+            oled.vline(64, 16, 64, 2)
+            #Main right section, usable space: 64 * 112
+            fb = framebuf.FrameBuffer(self.big_numbers.zero, 64, 112, framebuf.MONO_HLSB)
+            olet.blit(fb, 64, 16, 0) #x=10, y=10, key=0 # blit draws over cur fb with new
+            
     
-    def set_current_page(page, oled):
+    class StatsPage: #stub
+        def render(self, oled):
+            return
+
+    def __init__(self):
+        self.current_page = None
+        self.boot_page = self.BootPage()
+        self.main_page = self.MainPage()
+        self.stats_page = self.StatsPage()
+        self.big_numbers = Numbers()
+
+
+    def set_current_page(self, page, oled):
         oled.fill(0)
-        current_page = page
-        current_page.render(oled)
+        self.current_page = page
+        self.current_page.render(oled)
         oled.show()
         
-    def get_current_page():
-        return current_page
+    def get_current_page(self):
+        return self.current_page
     
-    def render_current_page():
-        current_page.render()
+    def render_current_page(self):
+        self.current_page.render()
         oled.show()
 
 class Numbers:
@@ -85,14 +98,13 @@ i2c = I2C(0, sda = Pin(4), scl = Pin(5), freq=400000)
 i2c.scan()
 utime.sleep(0.1)
 oled = SSD1306_I2C(128, 64, i2c)
+app = App()
 
 second_period = 2 #s
 this_period = 0 #s 
 wheel_diameter = 0.9 #m
 wheel_length = math.pi * wheel_diameter #m
 speed = 0 #mph
-
-app = App()
 
 #We reenable the interrupt so multiple can not trigger at once
 def on_lines_contact(pin):
