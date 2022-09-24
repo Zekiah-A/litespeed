@@ -59,11 +59,10 @@ class App:
             #Main left/right secrion separator
             oled.vline(64, 16, 64, 2)
             #Main right section, usable space: 64 * 112
-            num1 = framebuf.FrameBuffer(self.ui_numbers.two, 64, 96, framebuf.MONO_HLSB)
-            num2 = framebuf.FrameBuffer(self.ui_numbers.one, 64, 96, framebuf.MONO_HLSB)
-            oled.blit(num1, 64, 16, 0) #x,y,key blit draws over cur fb with new
-            oled.blit(num2, 96, 16, 1)
-            
+            num1 = framebuf.FrameBuffer(self.ui_numbers.two, 32, 96, framebuf.MONO_HLSB)
+            num2 = framebuf.FrameBuffer(self.ui_numbers.three, 32, 96, framebuf.MONO_HLSB)
+            oled.blit(num1, 64, -18, 0) #x,y,key blit draws over cur fb with new
+            oled.blit(num2, 96, -18, 0)            
     
     class StatsPage: #stub
         def render(self, oled):
@@ -131,7 +130,7 @@ def second_tick():
         
 
 app.set_current_page(app.boot_page, oled)
-time.sleep(4)
+time.sleep(2)
 app.set_current_page(app.main_page, oled)
 
 
