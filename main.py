@@ -63,7 +63,6 @@ class App:
             num2 = framebuf.FrameBuffer(self.ui_numbers.one, 64, 96, framebuf.MONO_HLSB)
             oled.blit(num1, 64, 16, 0) #x,y,key blit draws over cur fb with new
             oled.blit(num2, 96, 16, 1)
-            oled.fill(1)
             
     
     class StatsPage: #stub
