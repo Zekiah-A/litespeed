@@ -24,12 +24,20 @@ class Numbers:
 
 class App:    
     class BootPage:
+        #def __init__(self):
+            
         def render(self, oled):
+            for i in range(192):
+                oled.fill(0)
+                oled.text("   __o  ", i - 32, 44)
+                oled.text(" _`\<,_ ", i - 32, 50)
+                oled.text("(*)/ (*)", i - 32, 56)
+                oled.show()
+
             for i in range(64):
                 oled.fill(0)
                 oled.text("Zekiah-A:", 26, (int(i/2)) - 4)
                 oled.text("LiteSpeed", 26, (64-int(i/2)) + 4)
-                time.sleep(0.01)
                 oled.show()
 
     class MainPage:
@@ -50,11 +58,11 @@ class App:
             oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
             oled.hline(0, 8, 128, 1)
             # Main left section
-            oled.text("Spd:", 0, 16) #txt, x, y
+            oled.text("Spd:    ", 0, 16) #txt, x, y
             oled.hline(0, 28, 64, 2)
-            oled.text("Tme:", 0, 32)
+            oled.text("Tme:    ", 0, 32)
             oled.hline(0, 44, 64, 2)
-            oled.text("Avg:", 0, 48)
+            oled.text("Avg:    ", 0, 48)
             oled.hline(0, 60, 64, 2)
             #Main left/right secrion separator
             oled.vline(64, 16, 64, 2)
@@ -62,7 +70,7 @@ class App:
             num1 = framebuf.FrameBuffer(self.ui_numbers.two, 32, 96, framebuf.MONO_HLSB)
             num2 = framebuf.FrameBuffer(self.ui_numbers.three, 32, 96, framebuf.MONO_HLSB)
             oled.blit(num1, 64, -18, 0) #x,y,key blit draws over cur fb with new
-            oled.blit(num2, 96, -18, 0)            
+            oled.blit(num2, 96, -18, 0)      
     
     class StatsPage: #stub
         def render(self, oled):
@@ -130,7 +138,7 @@ def second_tick():
         
 
 app.set_current_page(app.boot_page, oled)
-time.sleep(2)
+time.sleep(1)
 app.set_current_page(app.main_page, oled)
 
 
@@ -140,3 +148,4 @@ print("Started set voltage of 1 on Pin 0\n")
 #Set an interrupt/event handler for the voltage change, when it contacts 0, voltage will be rising
 input_line.irq(trigger=Pin.IRQ_RISING, handler=on_lines_contact)
 _thread.start_new_thread(second_tick, ())
+
