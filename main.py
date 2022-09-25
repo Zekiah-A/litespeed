@@ -54,7 +54,6 @@ class App:
         
         def __init__(self, oled):
             self._speed = 0
-            #self.ui_numbers = Numbers()
             self.oled = oled
             
         def ui_number_converter(self, value, char_index = 0) -> bytearray:
@@ -127,12 +126,17 @@ wheel_diameter = 0.9 #m
 wheel_length = math.pi * wheel_diameter #m
 speed = 0 #mph
 
+#We apply contact cooldown so that multiple touches of the contats during one rotation does not occur
+#Contact cooldown time is set so that it is the highest possible, given the a reasonable max speed of the vehicle:
+#t = d/s, 50mph is around 24m/s, so therefore contact cooldown time = (wheel length (m)) / 24(m/s).
+contact_cooldown = wheel_length / 24
+
 #We reenable the interrupt so multiple can not trigger at once
 def on_lines_contact(pin):
     input_line.irq(handler=None)
     global this_period
     led.toggle()
-    time.sleep(0.05)
+    time.sleep(contact_cooldown)
     led.toggle()
     this_period += 1
     input_line.irq(handler=on_lines_contact)
