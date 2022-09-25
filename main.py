@@ -30,21 +30,27 @@ class App:
             self.oled = oled
             
         def render(self):
-            for i in range(192):
+            for i in range(96): #bike graphic
                 self.oled.fill(0)
-                self.oled.text("   __o  ", i - 32, 44)
-                self.oled.text(" _`\<,_ ", i - 32, 50)
-                self.oled.text("(*)/ (*)", i - 32, 56)
+                self.oled.text("   __o  ", i*2 - 64, 44)
+                self.oled.text(" _`\<,_ ", i*2 - 64, 50)
+                self.oled.text("(*)/ (*)", i*2 - 64, 56)
                 self.oled.show()
-
-            for i in range(64):
+                #self.oled.scroll(i, 0)
+            
+            for i in range(32): #name
                 self.oled.fill(0)
-                self.oled.text("Zekiah-A:", 26, (int(i/2)) - 4)
-                self.oled.text("LiteSpeed", 26, (64-int(i/2)) + 4)
+                self.oled.text("Zekiah-A:", 26, (int(i)) - 4)
+                self.oled.text("LiteSpeed", 26, (64-int(i)) + 4)
                 self.oled.show()
+                
+            for i in range(128): #swipe transition
+                self.oled.line(-128 + i * 2, 64, 0 + i * 2, 0, 0)
+                self.oled.show()
+                
 
     class MainPage:
-        @property #speed getter
+        @property #speed getter, rule of thumb, we always assume speed will be a two digit number, since it is unlikely a bike can go over 99mph
         def speed(self):
             return self._speed
         
@@ -80,11 +86,11 @@ class App:
             self.oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
             self.oled.hline(0, 8, 128, 1)
             # Main left section
-            self.oled.text("Sd:" + str(self.speed), 0, 16) #txt, x, y
+            self.oled.text("Sd:" + str(round(self.speed, 3)), 0, 16) #txt, x, y
             self.oled.hline(0, 28, 64, 2)
             self.oled.text("Tm:" + str(time.localtime(self.time)[4:6])[1:-1].replace(",", ":").replace(" ", ""), 0, 32)
             self.oled.hline(0, 44, 64, 2)
-            self.oled.text("Avg:" + str(self.speed), 0, 48)
+            self.oled.text("Avg: WIP", 0, 48)
             self.oled.hline(0, 60, 64, 2)
             #Main left/right secrion separator
             self.oled.vline(64, 16, 64, 2)
