@@ -6,6 +6,7 @@ import _thread
 from ssd1306 import SSD1306_I2C
 import framebuf
 
+
 #Generated number images by 
 #convert -size 32x80 -background '#ffff' -fill black -gravity center label:{number} -resize 32x112! {number}.png
 # and to bytearray with https://github.com/novaspirit/img2bytearray/, python3 img2bytearray.py ../{number}.png 32 112 >> barrays.txt
@@ -51,25 +52,39 @@ class App:
         def speed(self, value):
             self._speed = value
             self.render()
+            
+        @property #time getter
+        def time(self):
+            return self._time
         
+        @time.setter #time setter
+        def time(self, value):
+            self._time = value
+            self.render()
+            
         def __init__(self, oled):
             self._speed = 0
+            self._time = 0
             self.oled = oled
             
         def ui_number_converter(self, value, char_index = 0) -> bytearray:
-            i = (str(value)[char_index] if len(str(value)) - 1 >= char_index else 0)
-            return numbers[int(i)]             
+            try:
+                #i = (str(value)[char_index] if len(str(value)) - 1 >= char_index else "0")
+                return numbers[int(str(value)[char_index])]
+            except:
+                return numbers[0]
             
         def render(self):
+            self.oled.fill(0)
             # HUD title
             self.oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
             self.oled.hline(0, 8, 128, 1)
             # Main left section
-            self.oled.text("Spd:    ", 0, 16) #txt, x, y
+            self.oled.text("Sd:" + str(self.speed), 0, 16) #txt, x, y
             self.oled.hline(0, 28, 64, 2)
-            self.oled.text("Tme:    ", 0, 32)
+            self.oled.text("Tm:" + str(time.localtime(self.time)[4:6])[1:-1].replace(",", ":").replace(" ", ""), 0, 32)
             self.oled.hline(0, 44, 64, 2)
-            self.oled.text("Avg:    ", 0, 48)
+            self.oled.text("Avg:" + str(self.speed), 0, 48)
             self.oled.hline(0, 60, 64, 2)
             #Main left/right secrion separator
             self.oled.vline(64, 16, 64, 2)
@@ -77,14 +92,16 @@ class App:
             num1 = framebuf.FrameBuffer(self.ui_number_converter(speed), 32, 96, framebuf.MONO_HLSB)
             num2 = framebuf.FrameBuffer(self.ui_number_converter(speed, 1), 32, 96, framebuf.MONO_HLSB)
             self.oled.blit(num1, 64, -18, 0) #x,y,key blit draws over cur fb with new
-            self.oled.blit(num2, 96, -18, 0)      
+            self.oled.blit(num2, 96, -18, 0)
+            self.oled.show()
     
     class StatsPage: #stub
         def __init__(self, oled):
             self.oled = oled
             
         def render(self):
-            return
+            self.oled.fill(0)
+            self.oled.show()
 
     def __init__(self, oled):
         self.current_page = None
@@ -95,10 +112,8 @@ class App:
 
 
     def set_current_page(self, page):
-        self.oled.fill(0)
         self.current_page = page
         self.current_page.render()
-        self.oled.show()
         
     def get_current_page(self):
         return self.current_page
@@ -143,6 +158,7 @@ def on_lines_contact(pin):
     
 def second_tick():
     global second_period
+    global app
     while True:
         #Calc speed
         global speed
@@ -151,11 +167,13 @@ def second_tick():
         print("speed", speed) #, end="\r"
         #Reset for next second
         this_period = 0
+        if (app.get_current_page() == app.main_page):
+            app.main_page.time = app.main_page.time + second_period
         time.sleep(second_period)
         
 
 app.set_current_page(app.boot_page)
-time.sleep(1)
+time.sleep(0.1)
 app.set_current_page(app.main_page)
 
 
