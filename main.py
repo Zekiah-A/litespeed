@@ -6,6 +6,7 @@ import _thread
 from ssd1306 import SSD1306_I2C
 import framebuf
 from enum import Enum
+import re
 
 
 #Generated number images by 
@@ -90,6 +91,7 @@ class App:
             self._time = 0
             self.oled = oled
             self.current = false
+            self. speed_calculate_algorithm = None
             
         def ui_number_converter(self, value, char_index = 0) -> bytearray:
             try:
@@ -97,6 +99,12 @@ class App:
                 return numbers[int(str(value)[char_index])]
             except:
                 return numbers[0]
+
+        def calc_algorithm_converter(self, value):
+            if not value:
+                return "FP"
+            match = re.search("(^[a-z_]|(?<=_)[a-z])", value).match
+            return str(match)
             
         def render(self):
             if not self.current:
@@ -105,6 +113,7 @@ class App:
             # HUD title
             self.oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
             self.oled.hline(0, 8, 128, 1)
+            self.oled.text(self.calc_algorithm_converter(self.speed_calculate_algorithm), 120, 0) #Speed calc algorithm 
             # Main left section
             self.oled.text("Sd:" + str(round(self.speed, 3)), 0, 16) #txt, x, y
             self.oled.hline(0, 28, 64, 2)
@@ -115,8 +124,8 @@ class App:
             #Main left/right secrion separator
             self.oled.vline(64, 16, 64, 2)
             #Main right section, usable space: 64 * 112
-            num1 = framebuf.FrameBuffer(self.ui_number_converter(speed), 32, 96, framebuf.MONO_HLSB)
-            num2 = framebuf.FrameBuffer(self.ui_number_converter(speed, 1), 32, 96, framebuf.MONO_HLSB)
+            num1 = framebuf.FrameBuffer(self.ui_number_converter(self.speed), 32, 96, framebuf.MONO_HLSB)
+            num2 = framebuf.FrameBuffer(self.ui_number_converter(self.speed, 1), 32, 96, framebuf.MONO_HLSB)
             self.oled.blit(num1, 64, -18, 0) #x,y,key blit draws over cur fb with new
             self.oled.blit(num2, 96, -18, 0)
             self.oled.show()
@@ -177,6 +186,7 @@ this_period = 0 #s
 wheel_diameter = 0.9 #m
 wheel_length = math.pi * wheel_diameter #m
 speed = 0 #mph
+ride_time = 0
 
 speed_calculate_algorithm = SpeedAlgorithm.FIXED_PERIOD
 
@@ -198,6 +208,7 @@ def on_lines_contact(pin):
 def second_tick():
     global second_period
     global app
+    global ride_time
     while True:
         #Calc speed
         global speed
@@ -205,7 +216,8 @@ def second_tick():
         speed = 2.23694 * (wheel_length * this_period / second_period) #m/s -> miles per hour
         #Reset for next second
         this_period = 0
-        app.main_page.time = app.main_page.time + second_period
+        ride_time = ride_time + second_period
+        app.main_page.time = ride_time
         app.main_page.speed = speed
         time.sleep(second_period)
         
