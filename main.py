@@ -48,11 +48,13 @@ class App:
             self.current = false
             
         def render(self):
+            if not self.current:
+                return
             for i in range(96): #bike graphic
                 self.oled.fill(0)
-                self.oled.text("   __o  ", i*2 - 64, 44)
-                self.oled.text(" _`\<,_ ", i*2 - 64, 50)
-                self.oled.text("(*)/ (*)", i*2 - 64, 56)
+                self.oled.text("   __o  ", i * 2 - 64, 44)
+                self.oled.text(" _`\<,_ ", i * 2 - 64, 50)
+                self.oled.text("(*)/ (*)", i * 2 - 64, 56)
                 self.oled.show()
                 #self.oled.scroll(i, 0)
             
@@ -91,7 +93,7 @@ class App:
             self._time = 0
             self.oled = oled
             self.current = false
-            self. speed_calculate_algorithm = None
+            self.speed_calculate_algorithm = None
             
         def ui_number_converter(self, value, char_index = 0) -> bytearray:
             try:
@@ -102,8 +104,8 @@ class App:
 
         def calc_algorithm_converter(self, value):
             if not value:
-                return "FP"
-            match = re.search("(^[a-z_]|(?<=_)[a-z])", value).match
+                return "ERR"
+            match = "".join(re.findall("(^[A-Z_]|(?<=_)[A-Z])", "HELLO_THIS_IS"))
             return str(match)
             
         def render(self):
@@ -136,6 +138,8 @@ class App:
             self.current = false
             
         def render(self):
+            if not self.current:
+                return
             self.oled.fill(0)
             #Title
             self.oled.text("Litespeed > Stats", 0, 0)
