@@ -39,6 +39,7 @@ class App:
     class BootPage:
         def __init__(self, oled):
             self.oled = oled
+            self.current = false
             
         def render(self):
             for i in range(96): #bike graphic
@@ -83,6 +84,7 @@ class App:
             self._speed = 0
             self._time = 0
             self.oled = oled
+            self.current = false
             
         def ui_number_converter(self, value, char_index = 0) -> bytearray:
             try:
@@ -92,6 +94,8 @@ class App:
                 return numbers[0]
             
         def render(self):
+            if not self.current:
+                return
             self.oled.fill(0)
             # HUD title
             self.oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
@@ -115,6 +119,7 @@ class App:
     class StatsPage: #stub
         def __init__(self, oled):
             self.oled = oled
+            self.current = false
             
         def render(self):
             self.oled.fill(0)
@@ -139,6 +144,7 @@ class App:
 
     def set_current_page(self, page):
         self.current_page = page
+        self.current_page.current = true
         self.current_page.render()
         
     def get_current_page(self):
