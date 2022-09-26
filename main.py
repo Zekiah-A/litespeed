@@ -8,10 +8,10 @@ import framebuf
 import re
 
 
-#Generated number images by 
-#convert -size 32x80 -background '#ffff' -fill black -gravity center label:{number} -resize 32x112! {number}.png
+# Generated number images by 
+# convert -size 32x80 -background '#ffff' -fill black -gravity center label:{number} -resize 32x112! {number}.png
 # and to bytearray with https://github.com/novaspirit/img2bytearray/, python3 img2bytearray.py ../{number}.png 32 112 >> barrays.txt
-#{number here is the number in question}, arr 0-9
+# {number here is the number in question}, arr 0-9
 numbers = [
     bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\x00\x00\x01\xff\x00\x00\x03\xff\xc0\x00\x07\xff\xe0\x00\x0f\xff\xe0\x00\x0f\xd7\xf0\x00\x1fA\xf0\x00?\x01\xf8\x00>\x00\xf8\x00|\x00\xf8\x00|\x00x\x00\xf8\x00x\x00\xf8\x00|\x00\xf8\x00x\x01\xf0\x00|\x01\xf0\x00|\x01\xe0\x00|\x01\xe0\x00x\x03\xe0\x00|\x03\xe0\x00|\x03\xc0\x00x\x03\xe0\x00|\x07\xc0\x00x\x07\xc0\x00|\x07\xc0\x00x\x07\x80\x00|\x07\xc0\x00x\x07\x80\x00x\x07\x80\x00\xf8\x0f\x80\x00x\x07\x80\x00\xf8\x0f\x80\x00\xf8\x0f\x80\x00\xf8\x07\x80\x00\xf0\x0f\x80\x00\xf0\x0f\x80\x01\xf0\x0f\x00\x01\xf0\x0f\x80\x01\xf0\x0f\x80\x01\xe0\x0f\x00\x03\xe0\x07\x80\x03\xe0\x0f\x80\x03\xe0\x0f\x80\x03\xc0\x07\x80\x07\xc0\x07\x80\x07\x80\x07\xc0\x0f\xc0\x07\xc0\x0f\x80\x07\xc0\x1f\x00\x03\xe0?\x00\x03\xe0~\x00\x03\xfd\xfe\x00\x01\xff\xfc\x00\x01\xff\xf8\x00\x00\xff\xe0\x00\x00?\xd0\x00\x00*\x80\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'),
     bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0f\x80\x00\x00\x1f\x00\x00\x00?\x80\x00\x00\xff\x00\x00\x00\xff\x00\x00\x03\xff\x00\x00\x07\xff\x00\x00\x0f\xfe\x00\x00\x1f\xdf\x00\x00?\x9e\x00\x00\x7f\x1e\x00\x00>>\x00\x008\x1e\x00\x008<\x00\x00\x10>\x00\x00\x00<\x00\x00\x00|\x00\x00\x00<\x00\x00\x00|\x00\x00\x00|\x00\x00\x00x\x00\x00\x00|\x00\x00\x00x\x00\x00\x00\xf8\x00\x00\x00x\x00\x00\x00\xf8\x00\x00\x00\xf8\x00\x00\x00\xf0\x00\x00\x00\xf0\x00\x00\x00\xf0\x00\x00\x01\xf0\x00\x00\x00\xf0\x00\x00\x01\xf0\x00\x00\x01\xf0\x00\x00\x01\xe0\x00\x00\x01\xe0\x00\x00\x01\xe0\x00\x00\x03\xe0\x00\x00\x03\xe0\x00\x00\x03\xe0\x00\x00\x03\xc0\x00\x00\x03\xc0\x00\x00\x03\xc0\x00\x00\x03\xc0\x00\x00\x07\xc0\x00\x00\x07\xc0\x00\x00\x07\xc0\x00\x00\x07\x80\x00\x00\x07\x80\x00\x00\x07\x80\x00\x00\x0f\x80\x00\x00\x07\x80\x00\x00\x0f\x80\x00\x00\x0f\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'),
@@ -25,9 +25,61 @@ numbers = [
     bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfa\x00\x00\x03\xfe\x00\x00\x0f\xff\x80\x00\x0f\xff\xc0\x00?\xff\xe0\x00?\x8f\xe0\x00~#\xe0\x00|\x01\xf0\x00\xf8\x01\xf0\x00\xf8\x00\xf0\x01\xf0\x00\xf8\x01\xf0\x00\xf8\x01\xe0\x00x\x03\xe0\x00\xf8\x01\xe0\x00x\x03\xc0\x00x\x03\xe0\x00\xf8\x03\xc0\x00x\x03\xc0\x00x\x03\xc0\x00\xf8\x03\xc0\x00\xf8\x03\xe0\x00\xf8\x03\xc0\x00\xf8\x03\xe0\x01\xf8\x03\xe0\x01\xf0\x03\xe0\x03\xf8\x01\xe0\x07\xf0\x01\xf0\x0b\xf0\x01\xfc/\xf0\x00\xff\xfe\xf0\x00\xff\xfd\xf0\x00\x7f\xf9\xf0\x00?\xf1\xe0\x00\x17\xa1\xe0\x00\x04\x83\xe0\x00\x00\x03\xe0\x00\x00\x03\xe0\x00\x00\x03\xc0\x00\x00\x07\xc0\x00\x00\x07\xc0\x00\x00\x07\x80\x00\x00\x0f\x80\x00\x00\x0f\x80\x00\x00\x0f\x00\x00\x00\x1f\x00\x00\x00?\x00\x00\x00>\x00\x00\x00~\x00\x00\x01\xfc\x00\x08\x02\xf8\x00\x1f\xbf\xf8\x00\x0f\xef\xf0\x00\x1f\xff\xe0\x00\x0f\xff\x80\x00\x0f\xff\x00\x00\x05h\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 ]
 
+#Static
 class SpeedAlgorithm():
-    FIXED_PERIOD = 0
-    ROLLING_AVERAGE = 1
+    FIXED_PERIOD = self.FixedPeriod()
+    ROLLING_AVERAGE= self.RollingAverage()
+
+    class FixedPeriod:
+        def start(self, result_callback, wheel_length, input_line, led):
+            self.result_callback = result_callback
+            self.wheel_length = wheel_length
+            self.input_line = input_line
+            self.led = led
+            
+            # We apply contact cooldown so that multiple touches of the contats during one rotation does not occur
+            # Contact cooldown time is set so that it is the highest possible, given the a reasonable max speed of the vehicle:
+            # t = d/s, 50mph is around 24m/s, so therefore contact cooldown time = (wheel length (m)) / 24(m/s).
+            self.contact_cooldown = wheel_length / 24
+            self.second_period = 2 #s
+            self.this_period = 0 #s
+            self.stopped = False
+
+            # Set an interrupt/event handler for the voltage change, when it contacts 0, voltage will be rising
+            self.input_line.irq(trigger=Pin.IRQ_RISING, handler=self.on_lines_contact)
+            _thread.start_new_thread(self.second_tick, ())
+        
+
+        # We reenable the interrupt so multiple can not trigger at once
+        def on_lines_contact(self, pin):
+            self.input_line.irq(handler=None)
+            self.led.toggle()
+            time.sleep(contact_cooldown)
+            self.led.toggle()
+            self.this_period += 1
+            self.input_line.irq(handler=on_lines_contact)
+        
+        # Main fixed period tick, reports data back to program
+        def second_tick(self):
+            while not self.stopped:
+                calculated_speed = 2.23694 * (self.wheel_length * self.this_period / self.second_period) #m/s -> miles per hour
+                self.result_callback(calculated_speed, self.second_period, self.wheel_length) #!!Go back to report the new data to the program!!
+                #Reset for next second
+                self.this_period = 0
+                time.sleep(self.second_period)
+            # If stopped, then we terminate this thread, WARNING: I should be using multiprocessing package instead of creating new threads!
+            return # hopefully this terminates the thread
+
+        def stop():
+            self.stopped = True
+            self.input_line.irq(handler=None)
+            
+    class RollingAverage:
+        def start(self, result_callback, wheel_length, input_line, led):
+            return
+        
+        def stop():
+            return
 
 class Button:
     def __init__(x, y, oled):
@@ -69,7 +121,7 @@ class App:
                 
 
     class MainPage:
-        @property #speed getter, rule of thumb, we always assume speed will be a two digit number, since it is unlikely a bike can go over 99mph
+        @property # speed getter, rule of thumb, we always assume speed will be a two digit number, since it is unlikely a bike can go over 99mph
         def speed(self):
             return self._speed
         
@@ -96,7 +148,7 @@ class App:
             
         def ui_number_converter(self, value, char_index = 0) -> bytearray:
             try:
-                #i = (str(value)[char_index] if len(str(value)) - 1 >= char_index else "0")
+                # i = (str(value)[char_index] if len(str(value)) - 1 >= char_index else "0")
                 return numbers[int(str(value)[char_index])]
             except:
                 return numbers[0]
@@ -104,7 +156,7 @@ class App:
         def calc_algorithm_converter(self, value):
             if not value or value is None:
                 return "ERR"
-            match = "".join(re.findall("(^[A-Z_]|(?<=_)[A-Z])", "HELLO_THIS_IS"))
+            match = "".join(re.findall("(^[A-Z_]|(?<=[a-z])[A-Z])", value))
             return str(match)
             
         def render(self):
@@ -114,15 +166,15 @@ class App:
             # HUD title
             self.oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
             self.oled.hline(0, 8, 128, 1)
-            self.oled.text(self.calc_algorithm_converter(self.speed_calculate_algorithm), 120, 0) #Speed calc algorithm 
+            self.oled.text(self.calc_algorithm_converter(type(self.speed_calculate_algorithm).__name__), 120, 0) # Current speed calc algorithm used displayer 
             # Main left section
-            self.oled.text("Sd:" + str(round(self.speed, 3)), 0, 16) #txt, x, y
+            self.oled.text("Sd:" + str(round(self.speed, 3)), 0, 16) # txt, x, y
             self.oled.hline(0, 28, 64, 2)
             self.oled.text("Tm:" + str(time.localtime(self.time)[4:6])[1:-1].replace(",", ":").replace(" ", ""), 0, 32)
             self.oled.hline(0, 44, 64, 2)
             self.oled.text("Avg: WIP", 0, 48)
             self.oled.hline(0, 60, 64, 2)
-            #Main left/right secrion separator
+            # Main left/right secrion separator
             self.oled.vline(64, 16, 64, 2)
             #Main right section, usable space: 64 * 112
             num1 = framebuf.FrameBuffer(self.ui_number_converter(self.speed), 32, 96, framebuf.MONO_HLSB)
@@ -140,13 +192,13 @@ class App:
             if not self.current:
                 return
             self.oled.fill(0)
-            #Title
+            # Title
             self.oled.text("Litespeed > Stats", 0, 0)
             self.oled.hline(0, 8, 128, 1)
-            #Section 1 -> run
+            # Section 1 -> run
             self.oled.text("School run:")
             Button(self.oled, 20, 30)
-            #Section separator
+            # Section separator
             self.oled.vline(96, 16, 64, 1)
             self.oled.show()
     
@@ -157,7 +209,6 @@ class App:
         self.main_page = self.MainPage(oled)
         self.stats_page = self.StatsPage(oled)
         self.oled = oled
-
 
     def set_current_page(self, page):
         self.current_page = page
@@ -172,67 +223,40 @@ class App:
         self.current_page.render()
         self.oled.show()
 
-#Speed = distance / time, we will meassure the speed every second, distance will be the wheel rim diameter
+# Speed = distance / time, we will meassure the speed every second, distance will be the wheel rim diameter
 led = Pin(25, Pin.OUT)
 output_line = Pin(0, Pin.OUT)
 input_line = Pin(1, Pin.IN, Pin.PULL_DOWN)
 
-#Set up display
+# Set up display
 i2c = I2C(0, sda = Pin(4), scl = Pin(5), freq=400000)
 i2c.scan()
 utime.sleep(0.1)
 oled = SSD1306_I2C(128, 64, i2c)
 app = App(oled)
+speed_calculate_algorithm = SpeedAlgorithm.FIXED_PERIOD
 
-second_period = 2 #s
-this_period = 0 #s 
 wheel_diameter = 0.9 #m
 wheel_length = math.pi * wheel_diameter #m
 speed = 0 #mph
-ride_time = 0
+ride_time = 0 #s
 
-speed_calculate_algorithm = SpeedAlgorithm.FIXED_PERIOD
 
-#We apply contact cooldown so that multiple touches of the contats during one rotation does not occur
-#Contact cooldown time is set so that it is the highest possible, given the a reasonable max speed of the vehicle:
-#t = d/s, 50mph is around 24m/s, so therefore contact cooldown time = (wheel length (m)) / 24(m/s).
-contact_cooldown = wheel_length / 24
+def speed_result_callback(speed, period, distance):
+    ride_time = ride_time + period
+    app.main_page.time = ride_time
+    app.main_page.speed = speed
 
-#We reenable the interrupt so multiple can not trigger at once
-def on_lines_contact(pin):
-    input_line.irq(handler=None)
-    global this_period
-    led.toggle()
-    time.sleep(contact_cooldown)
-    led.toggle()
-    this_period += 1
-    input_line.irq(handler=on_lines_contact)
-    
-def second_tick():
-    global second_period
-    global app
-    global ride_time
-    while True:
-        #Calc speed
-        global speed
-        global this_period
-        speed = 2.23694 * (wheel_length * this_period / second_period) #m/s -> miles per hour
-        #Reset for next second
-        this_period = 0
-        ride_time = ride_time + second_period
-        app.main_page.time = ride_time
-        app.main_page.speed = speed
-        time.sleep(second_period)
-        
 
+# Initialise UI
 app.set_current_page(app.boot_page)
 time.sleep(0.1)
 app.set_current_page(app.main_page)
 
-
+# All speed calc algorithms require these to be set
 led.value(0)
 output_line.value(1)
-print("Started set voltage of 1 on Pin 0\n")
-#Set an interrupt/event handler for the voltage change, when it contacts 0, voltage will be rising
-input_line.irq(trigger=Pin.IRQ_RISING, handler=on_lines_contact)
-_thread.start_new_thread(second_tick, ())
+print("started set voltage of 1 on Pin 0\n")
+
+# Init whatever speed calc algorithm we decide on using
+speed_calculate_algorithm.start(speed_result_callback, wheel_length, input_line, led)
