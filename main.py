@@ -7,7 +7,6 @@ from ssd1306 import SSD1306_I2C
 import framebuf
 import re
 
-
 # Generated number images by 
 # convert -size 32x80 -background '#ffff' -fill black -gravity center label:{number} -resize 32x112! {number}.png
 # and to bytearray with https://github.com/novaspirit/img2bytearray/, python3 img2bytearray.py ../{number}.png 32 112 >> barrays.txt
@@ -248,15 +247,22 @@ def speed_result_callback(speed, period, distance):
     app.main_page.speed = speed
 
 
-# Initialise UI
-app.set_current_page(app.boot_page)
-time.sleep(0.1)
-app.set_current_page(app.main_page)
+try:
+    # Initialise UI
+    app.set_current_page(app.boot_page)
+    time.sleep(0.1)
+    app.set_current_page(app.main_page)
 
-# All speed calc algorithms require these to be set
-led.value(0)
-output_line.value(1)
-print("started set voltage of 1 on Pin 0\n")
+    # All speed calc algorithms require these to be set
+    led.value(0)
+    output_line.value(1)
+    print("started set voltage of 1 on Pin 0\n")
 
-# Init whatever speed calc algorithm we decide on using
-speed_calculate_algorithm.start(speed_result_callback, wheel_length, input_line, led)
+    # Init whatever speed calc algorithm we decide on using
+    speed_calculate_algorithm.start(speed_result_callback, wheel_length, input_line, led)
+except BaseException as error:    
+    print("[FATAL]: Unrecoverable error in program main, please shut down immediately and contact developers!\n" + str(error))
+    oled.text("[FATAL] UNRECOVERABLE ERROR:", 0, 0)
+    err_formatted = str(error).split("\n")
+    for i in range(0, len(err_formatted)):
+        oled.text(err_formatted[i], 0, 16 + (16 * i))
