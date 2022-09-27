@@ -1,4 +1,4 @@
-from machine import Pin, I2C
+from machine import Pin,I2C
 import time
 import utime
 import math
@@ -7,10 +7,9 @@ from ssd1306 import SSD1306_I2C
 import framebuf
 import re
 
-# Generated number images by 
-# convert -size 32x80 -background '#ffff' -fill black -gravity center label:{number} -resize 32x112! {number}.png
-# and to bytearray with https://github.com/novaspirit/img2bytearray/, python3 img2bytearray.py ../{number}.png 32 112 >> barrays.txt
-# {number here is the number in question}, arr 0-9
+# Generated number images by convert -size 32x80 -background '#ffff' -fill black -gravity center label:{number}
+# -resize 32x112! {number}.png and to bytearray with https://github.com/novaspirit/img2bytearray/,
+# python3 img2bytearray.py ../{number}.png 32 112 >> barrays.txt {number here is the number in question}, arr 0-9
 numbers = [
     bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\x00\x00\x01\xff\x00\x00\x03\xff\xc0\x00\x07\xff\xe0\x00\x0f\xff\xe0\x00\x0f\xd7\xf0\x00\x1fA\xf0\x00?\x01\xf8\x00>\x00\xf8\x00|\x00\xf8\x00|\x00x\x00\xf8\x00x\x00\xf8\x00|\x00\xf8\x00x\x01\xf0\x00|\x01\xf0\x00|\x01\xe0\x00|\x01\xe0\x00x\x03\xe0\x00|\x03\xe0\x00|\x03\xc0\x00x\x03\xe0\x00|\x07\xc0\x00x\x07\xc0\x00|\x07\xc0\x00x\x07\x80\x00|\x07\xc0\x00x\x07\x80\x00x\x07\x80\x00\xf8\x0f\x80\x00x\x07\x80\x00\xf8\x0f\x80\x00\xf8\x0f\x80\x00\xf8\x07\x80\x00\xf0\x0f\x80\x00\xf0\x0f\x80\x01\xf0\x0f\x00\x01\xf0\x0f\x80\x01\xf0\x0f\x80\x01\xe0\x0f\x00\x03\xe0\x07\x80\x03\xe0\x0f\x80\x03\xe0\x0f\x80\x03\xc0\x07\x80\x07\xc0\x07\x80\x07\x80\x07\xc0\x0f\xc0\x07\xc0\x0f\x80\x07\xc0\x1f\x00\x03\xe0?\x00\x03\xe0~\x00\x03\xfd\xfe\x00\x01\xff\xfc\x00\x01\xff\xf8\x00\x00\xff\xe0\x00\x00?\xd0\x00\x00*\x80\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'),
     bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0f\x80\x00\x00\x1f\x00\x00\x00?\x80\x00\x00\xff\x00\x00\x00\xff\x00\x00\x03\xff\x00\x00\x07\xff\x00\x00\x0f\xfe\x00\x00\x1f\xdf\x00\x00?\x9e\x00\x00\x7f\x1e\x00\x00>>\x00\x008\x1e\x00\x008<\x00\x00\x10>\x00\x00\x00<\x00\x00\x00|\x00\x00\x00<\x00\x00\x00|\x00\x00\x00|\x00\x00\x00x\x00\x00\x00|\x00\x00\x00x\x00\x00\x00\xf8\x00\x00\x00x\x00\x00\x00\xf8\x00\x00\x00\xf8\x00\x00\x00\xf0\x00\x00\x00\xf0\x00\x00\x00\xf0\x00\x00\x01\xf0\x00\x00\x00\xf0\x00\x00\x01\xf0\x00\x00\x01\xf0\x00\x00\x01\xe0\x00\x00\x01\xe0\x00\x00\x01\xe0\x00\x00\x03\xe0\x00\x00\x03\xe0\x00\x00\x03\xe0\x00\x00\x03\xc0\x00\x00\x03\xc0\x00\x00\x03\xc0\x00\x00\x03\xc0\x00\x00\x07\xc0\x00\x00\x07\xc0\x00\x00\x07\xc0\x00\x00\x07\x80\x00\x00\x07\x80\x00\x00\x07\x80\x00\x00\x0f\x80\x00\x00\x07\x80\x00\x00\x0f\x80\x00\x00\x0f\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'),
@@ -25,15 +24,12 @@ numbers = [
 ]
 
 class SpeedTime:
-  def __init__(speed, time):
-    self.speed = speed
-    self.time = time
+    def __init__(self, speed, time):
+        self.speed = speed
+        self.time = time
 
-#Static
-class SpeedAlgorithm():
-    FIXED_PERIOD = self.FixedPeriod()
-    ROLLING_AVERAGE= self.RollingAverage()
-
+# Static
+class SpeedAlgorithm:
     class FixedPeriod:
         def start(self, result_callback, wheel_length, input_line, led):
             self.result_callback = result_callback
@@ -42,7 +38,7 @@ class SpeedAlgorithm():
             self.led = led
             
             # We apply contact cooldown so that multiple touches of the contats during one rotation does not occur
-            # Contact cooldown time is set so that it is the highest possible, given the a reasonable max speed of the vehicle:
+            # Contact cooldown time set to be highest possible, given the a reasonable max speed of the vehicle:
             # t = d/s, 50mph is around 24m/s, so therefore contact cooldown time = (wheel length (m)) / 24(m/s).
             self.contact_cooldown = wheel_length / 24
             self.second_period = 2 #s
@@ -65,12 +61,12 @@ class SpeedAlgorithm():
         # Main fixed period tick, reports data back to program
         def second_tick(self):
             while not self.stopped:
-                calculated_speed = 2.23694 * (self.wheel_length * self.this_period / self.second_period) #m/s -> miles per hour
-                self.result_callback(calculated_speed, self.second_period, self.wheel_length) #!!Go back to report the new data to the program!!
-                #Reset for next second
+                calculated_speed = 2.23694 * (self.wheel_length * self.this_period / self.second_period) # m/s -> miles per hour
+                self.result_callback(calculated_speed, self.second_period, self.wheel_length) # !!Go back to report the new data to the program!!
+                # Reset for next second
                 self.this_period = 0
                 time.sleep(self.second_period)
-            # If stopped, then we terminate this thread, WARNING: I should be using multiprocessing package instead of creating new threads!
+            # If stopped, then we terminate this thread, TODO: Use multiprocessing pkg instead
             return # hopefully this terminates the thread
 
         def stop(self):
@@ -91,47 +87,50 @@ class SpeedAlgorithm():
             self.stopped = False
         
         def on_lines_contact(self, pin):
-          self.input_line.irq(handler=None)
-          if len(self.previous_speed_times) >= self.previous_len_max:
-            self.previous_speed_times = self.previous_speed_times[1:] # Shift oldest previous speed/time out of the list
-          curr_time = time.ticks_ms()
-          time_change = time.ticks_diff(curr_time, self.previous_speed_times[len(self.previous_speed_times) - 1].time)
-          new_speed = 2.23694 * self.wheel_length * time_change
-          self.previous_speed_times.append(SpeedTime(new_speed, curr_time))
-          
-          # Now need to iterate through every previous speed, finding the average speed in tye last 10 wheel rotations
-          sp_sum = 0
-          for i in range(len(self.previous_speed_times)):
-            sp_sum += self.previous_speed_times[i].speed
-          # Mean average from speeds measured at prev 10 tyre rotations
-          calculated_average_speed = sp_sum / len(self.previous_speed_times)
-          self.result_callback(calculated_average_speed, time_change / 1000, self.wheel_length)
-          self.input_line.irq(handler=self.on_lines_contact)
+            self.input_line.irq(handler=None)
+            if len(self.previous_speed_times) >= self.previous_len_max:
+                self.previous_speed_times = self.previous_speed_times[1:] # Shift oldest previous speed/time out of the list
+            curr_time = time.ticks_ms()
+            time_change = time.ticks_diff(curr_time, self.previous_speed_times[len(self.previous_speed_times) - 1].time)
+            new_speed = 2.23694 * self.wheel_length * time_change
+            self.previous_speed_times.append(SpeedTime(new_speed, curr_time))
+
+            # Now need to iterate through every previous speed, finding the average speed in tye last 10 wheel rotations
+            sp_sum = 0
+            for i in range(len(self.previous_speed_times)):
+                sp_sum += self.previous_speed_times[i].speed
+            # Mean average from speeds measured at prev 10 tyre rotations
+            calculated_average_speed = sp_sum / len(self.previous_speed_times)
+            self.result_callback(calculated_average_speed, time_change / 1000, self.wheel_length)
+            self.input_line.irq(handler=self.on_lines_contact)
         
         def stop(self):
             self.stopped = True
             return
-    
+
+    FIXED_PERIOD = FixedPeriod()
+    ROLLING_AVERAGE = RollingAverage()
+
     def stop_all(self):
-      FIXED_PERIOD.stopped = True
-      ROLLING_AVERAGE.stopped = True
+      self.FIXED_PERIOD.stopped = True
+      self.ROLLING_AVERAGE.stopped = True
 
 class Button:
-    def __init__(x, y, oled):
+    def __init__(self, x, y, oled):
         self.oled = oled
         self.x = x
         self.y = y
         
     def render(self):
-        self.oled.rect(x + 0, y + 0, 48, 24, 1)
-        self.oled.fill_rect(x + 1, y + 1, 46, 30, 1)
-        self.oled.text("ok", x + 44, y + 18)
+        self.oled.rect(self.x + 0, self.y + 0, 48, 24, 1)
+        self.oled.fill_rect(self.x + 1, self.y + 1, 46, 30, 1)
+        self.oled.text("ok", self.x + 44, self.y + 18)
 
 class App:    
     class BootPage:
         def __init__(self, oled):
             self.oled = oled
-            self.current = false
+            self.current = False
             
         def render(self):
             if not self.current:
@@ -156,29 +155,39 @@ class App:
                 
 
     class MainPage:
-        @property # speed getter, rule of thumb, we always assume speed will be a two digit number, since it is unlikely a bike can go over 99mph
+        @property
         def speed(self):
-            return self._speed
-        
+            raise Exception("Property is setter only! (speed)")
+
         @speed.setter # speed setter
         def speed(self, value):
             self._speed = value
             self.render()
-            
-        @property #time getter
+
+        @property
         def time(self):
-            return self._time
+            raise Exception("Property is setter only! (time)")
         
         @time.setter #time setter
         def time(self, value):
             self._time = value
             self.render()
+
+        @property
+        def distance(self):
+            raise Exception("Property is setter only! (distance)")
+
+        @distance.setter
+        def distance(self, value):
+            self._distance = value;
+            self.render()
             
         def __init__(self, oled):
             self._speed = 0
             self._time = 0
+            self._distance = 0
             self.oled = oled
-            self.current = false
+            self.current = False
             self.speed_calculate_algorithm = None
             
         def ui_number_converter(self, value, char_index = 0) -> bytearray:
@@ -203,17 +212,17 @@ class App:
             self.oled.hline(0, 8, 128, 1)
             self.oled.text(self.calc_algorithm_converter(type(self.speed_calculate_algorithm).__name__), 120, 0) # Current speed calc algorithm used displayer 
             # Main left section
-            self.oled.text("Sd:" + str(round(self.speed, 3)), 0, 16) # txt, x, y
+            self.oled.text("Sd:" + str(round(self._speed, 3)), 0, 16) # txt, x, y
             self.oled.hline(0, 28, 64, 2)
-            self.oled.text("Tm:" + str(time.localtime(self.time)[4:6])[1:-1].replace(",", ":").replace(" ", ""), 0, 32)
+            self.oled.text("Tm:" + str(time.localtime(self._time)[4:6])[1:-1].replace(",", ":").replace(" ", ""), 0, 32)
             self.oled.hline(0, 44, 64, 2)
-            self.oled.text("Avg: WIP", 0, 48)
+            self.oled.text("Ds:" + str(round(self.distance, 3)), 0, 48)
             self.oled.hline(0, 60, 64, 2)
             # Main left/right secrion separator
             self.oled.vline(64, 16, 64, 2)
             #Main right section, usable space: 64 * 112
-            num1 = framebuf.FrameBuffer(self.ui_number_converter(self.speed), 32, 96, framebuf.MONO_HLSB)
-            num2 = framebuf.FrameBuffer(self.ui_number_converter(self.speed, 1), 32, 96, framebuf.MONO_HLSB)
+            num1 = framebuf.FrameBuffer(self.ui_number_converter(self._speed), 32, 96, framebuf.MONO_HLSB)
+            num2 = framebuf.FrameBuffer(self.ui_number_converter(self._speed, 1), 32, 96, framebuf.MONO_HLSB)
             self.oled.blit(num1, 64, -18, 0) #x,y,key blit draws over cur fb with new
             self.oled.blit(num2, 96, -18, 0)
             self.oled.show()
@@ -221,7 +230,7 @@ class App:
     class StatsPage: #stub
         def __init__(self, oled):
             self.oled = oled
-            self.current = false
+            self.current = False
             
         def render(self):
             if not self.current:
@@ -247,7 +256,7 @@ class App:
 
     def set_current_page(self, page):
         self.current_page = page
-        self.current_page.current = true
+        self.current_page.current = False
         self.current_page.render()
         
     def get_current_page(self):
@@ -275,12 +284,20 @@ wheel_diameter = 0.9 #m
 wheel_length = math.pi * wheel_diameter #m
 speed = 0 #mph
 ride_time = 0 #s
+distance = 0 #m
 
+def speed_result_callback(new_speed, period, new_distance):
+    global speed
+    global ride_time
+    global distance
+    speed = new_speed
+    ride_time += period
+    distance += new_distance
 
-def speed_result_callback(speed, period, distance):
-    ride_time = ride_time + period
+    # These should be mirrored automatically with an INotifyPropertyChanged-like system
     app.main_page.time = ride_time
     app.main_page.speed = speed
+    app.main_page.distance = distance
 
 
 try:
