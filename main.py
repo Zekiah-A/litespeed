@@ -102,7 +102,7 @@ class SpeedAlgorithm():
           # Now need to iterate through every previous speed, finding the average speed in tye last 10 wheel rotations
           sp_sum = 0
           for i in range(len(self.previous_speed_times)):
-            sp_sum += previous_speed_times[i]
+            sp_sum += self.previous_speed_times[i].speed
           # Mean average from speeds measured at prev 10 tyre rotations
           calculated_average_speed = sp_sum / len(self.previous_speed_times)
           self.result_callback(calculated_average_speed, time_change / 1000, self.wheel_length)
