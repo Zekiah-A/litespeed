@@ -1,4 +1,4 @@
-from machine import Pin,I2C
+from machine import Pin, I2C
 import time
 import utime
 import math
@@ -23,10 +23,12 @@ numbers = [
     bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfa\x00\x00\x03\xfe\x00\x00\x0f\xff\x80\x00\x0f\xff\xc0\x00?\xff\xe0\x00?\x8f\xe0\x00~#\xe0\x00|\x01\xf0\x00\xf8\x01\xf0\x00\xf8\x00\xf0\x01\xf0\x00\xf8\x01\xf0\x00\xf8\x01\xe0\x00x\x03\xe0\x00\xf8\x01\xe0\x00x\x03\xc0\x00x\x03\xe0\x00\xf8\x03\xc0\x00x\x03\xc0\x00x\x03\xc0\x00\xf8\x03\xc0\x00\xf8\x03\xe0\x00\xf8\x03\xc0\x00\xf8\x03\xe0\x01\xf8\x03\xe0\x01\xf0\x03\xe0\x03\xf8\x01\xe0\x07\xf0\x01\xf0\x0b\xf0\x01\xfc/\xf0\x00\xff\xfe\xf0\x00\xff\xfd\xf0\x00\x7f\xf9\xf0\x00?\xf1\xe0\x00\x17\xa1\xe0\x00\x04\x83\xe0\x00\x00\x03\xe0\x00\x00\x03\xe0\x00\x00\x03\xc0\x00\x00\x07\xc0\x00\x00\x07\xc0\x00\x00\x07\x80\x00\x00\x0f\x80\x00\x00\x0f\x80\x00\x00\x0f\x00\x00\x00\x1f\x00\x00\x00?\x00\x00\x00>\x00\x00\x00~\x00\x00\x01\xfc\x00\x08\x02\xf8\x00\x1f\xbf\xf8\x00\x0f\xef\xf0\x00\x1f\xff\xe0\x00\x0f\xff\x80\x00\x0f\xff\x00\x00\x05h\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 ]
 
+
 class SpeedTime:
     def __init__(self, speed, time):
         self.speed = speed
         self.time = time
+
 
 # Static
 class SpeedAlgorithm:
@@ -36,19 +38,19 @@ class SpeedAlgorithm:
             self.wheel_length = wheel_length
             self.input_line = input_line
             self.led = led
-            
+
             # We apply contact cooldown so that multiple touches of the contats during one rotation does not occur
             # Contact cooldown time set to be highest possible, given the a reasonable max speed of the vehicle:
             # t = d/s, 50mph is around 24m/s, so therefore contact cooldown time = (wheel length (m)) / 24(m/s).
             self.contact_cooldown = wheel_length / 24
-            self.second_period = 2 #s
-            self.this_period = 0 #s
+            self.second_period = 2  # s
+            self.this_period = 0  # s
             self.stopped = False
 
             # Set an interrupt/event handler for the voltage change, when it contacts 0, voltage will be rising
             self.input_line.irq(trigger=Pin.IRQ_RISING, handler=self.on_lines_contact)
             _thread.start_new_thread(self.second_tick, ())
-        
+
         # We reenable the interrupt so multiple can not trigger at once
         def on_lines_contact(self, pin):
             self.input_line.irq(handler=None)
@@ -57,39 +59,42 @@ class SpeedAlgorithm:
             self.led.toggle()
             self.this_period += 1
             self.input_line.irq(handler=self.on_lines_contact)
-        
+
         # Main fixed period tick, reports data back to program
         def second_tick(self):
             while not self.stopped:
-                calculated_speed = 2.23694 * (self.wheel_length * self.this_period / self.second_period) # m/s -> miles per hour
-                self.result_callback(calculated_speed, self.second_period, self.wheel_length) # !!Go back to report the new data to the program!!
+                calculated_speed = 2.23694 * (
+                            self.wheel_length * self.this_period / self.second_period)  # m/s -> miles per hour
+                self.result_callback(calculated_speed, self.second_period,
+                                     self.wheel_length)  # !!Go back to report the new data to the program!!
                 # Reset for next second
                 self.this_period = 0
                 time.sleep(self.second_period)
             # If stopped, then we terminate this thread, TODO: Use multiprocessing pkg instead
-            return # hopefully this terminates the thread
+            return  # hopefully this terminates the thread
 
         def stop(self):
             self.stopped = True
             self.input_line.irq(handler=None)
-            
+
     class RollingAverage:
         def start(self, result_callback, wheel_length, input_line, led):
             self.result_callback = result_callback
             self.wheel_length = wheel_length
             self.input_line = input_line
             self.led = led
-            
+
             # Max len 10 (average_len), list of ms times, only use time.ticks_diff() and time.ticks_add(), to calc, or errs may occur
             self.previous_speed_times = [SpeedTime(0, time.ticks_ms())]
             self.previous_len_max = 10
             self.input_line.irq(handler=self.on_lines_contact)
             self.stopped = False
-        
+
         def on_lines_contact(self, pin):
             self.input_line.irq(handler=None)
             if len(self.previous_speed_times) >= self.previous_len_max:
-                self.previous_speed_times = self.previous_speed_times[1:] # Shift oldest previous speed/time out of the list
+                self.previous_speed_times = self.previous_speed_times[
+                                            1:]  # Shift oldest previous speed/time out of the list
             curr_time = time.ticks_ms()
             time_change = time.ticks_diff(curr_time, self.previous_speed_times[len(self.previous_speed_times) - 1].time)
             new_speed = 2.23694 * self.wheel_length * time_change
@@ -103,7 +108,7 @@ class SpeedAlgorithm:
             calculated_average_speed = sp_sum / len(self.previous_speed_times)
             self.result_callback(calculated_average_speed, time_change / 1000, self.wheel_length)
             self.input_line.irq(handler=self.on_lines_contact)
-        
+
         def stop(self):
             self.stopped = True
             return
@@ -112,54 +117,55 @@ class SpeedAlgorithm:
     ROLLING_AVERAGE = RollingAverage()
 
     def stop_all(self):
-      self.FIXED_PERIOD.stopped = True
-      self.ROLLING_AVERAGE.stopped = True
+        self.FIXED_PERIOD.stopped = True
+        self.ROLLING_AVERAGE.stopped = True
+
 
 class Button:
     def __init__(self, x, y, oled):
         self.oled = oled
         self.x = x
         self.y = y
-        
+
     def render(self):
         self.oled.rect(self.x + 0, self.y + 0, 48, 24, 1)
         self.oled.fill_rect(self.x + 1, self.y + 1, 46, 30, 1)
         self.oled.text("ok", self.x + 44, self.y + 18)
 
-class App:    
+
+class App:
     class BootPage:
         def __init__(self, oled):
             self.oled = oled
             self.current = False
-            
+
         def render(self):
             if not self.current:
                 return
-            for i in range(96): #bike graphic
+            for i in range(96):  # bike graphic
                 self.oled.fill(0)
                 self.oled.text("   __o  ", i * 2 - 64, 44)
                 self.oled.text(" _`\<,_ ", i * 2 - 64, 50)
                 self.oled.text("(*)/ (*)", i * 2 - 64, 56)
                 self.oled.show()
-                #self.oled.scroll(i, 0)
-            
-            for i in range(32): #name
+                # self.oled.scroll(i, 0)
+
+            for i in range(32):  # name
                 self.oled.fill(0)
                 self.oled.text("Zekiah-A:", 26, (int(i)) - 4)
-                self.oled.text("LiteSpeed", 26, (64-int(i)) + 4)
+                self.oled.text("LiteSpeed", 26, (64 - int(i)) + 4)
                 self.oled.show()
-                
-            for i in range(128): #swipe transition
+
+            for i in range(128):  # swipe transition
                 self.oled.line(-128 + i * 2, 64, 0 + i * 2, 0, 0)
                 self.oled.show()
-                
 
     class MainPage:
         @property
         def speed(self):
             raise Exception("Property is setter only! (speed)")
 
-        @speed.setter # speed setter
+        @speed.setter  # speed setter
         def speed(self, value):
             self._speed = value
             self.render()
@@ -168,7 +174,7 @@ class App:
         def time(self):
             raise Exception("Property is setter only! (time)")
 
-        @time.setter #time setter
+        @time.setter  # time setter
         def time(self, value):
             self._time = value
             self.render()
@@ -181,7 +187,7 @@ class App:
         def distance(self, value):
             self._distance = value
             self.render()
-            
+
         def __init__(self, oled):
             self._speed = 0
             self._time = 0
@@ -189,8 +195,8 @@ class App:
             self.oled = oled
             self.current = False
             self.speed_calculate_algorithm = None
-            
-        def ui_number_converter(self, value, char_index = 0) -> bytearray:
+
+        def ui_number_converter(self, value, char_index=0) -> bytearray:
             try:
                 # i = (str(value)[char_index] if len(str(value)) - 1 >= char_index else "0")
                 return numbers[int(str(value)[char_index])]
@@ -202,7 +208,7 @@ class App:
                 return "ERR"
             match = "".join(re.findall("(^[A-Z_]|(?<=[a-z])[A-Z])", value))
             return str(match)
-            
+
         def render(self):
             if not self.current:
                 return
@@ -210,9 +216,10 @@ class App:
             # HUD title
             self.oled.text("LiteSpeed v0.01 - (c) Zekiah", 0, 0)
             self.oled.hline(0, 8, 128, 1)
-            self.oled.text(self.calc_algorithm_converter(type(self.speed_calculate_algorithm).__name__), 120, 0) # Current speed calc algorithm used displayer 
+            self.oled.text(self.calc_algorithm_converter(type(self.speed_calculate_algorithm).__name__), 120,
+                           0)  # Current speed calc algorithm used displayer
             # Main left section
-            self.oled.text("Sd:" + str(round(self._speed, 3)), 0, 16) # txt, x, y
+            self.oled.text("Sd:" + str(round(self._speed, 3)), 0, 16)  # txt, x, y
             self.oled.hline(0, 28, 64, 2)
             self.oled.text("Tm:" + str(time.localtime(self._time)[4:6])[1:-1].replace(",", ":").replace(" ", ""), 0, 32)
             self.oled.hline(0, 44, 64, 2)
@@ -220,18 +227,18 @@ class App:
             self.oled.hline(0, 60, 64, 2)
             # Main left/right secrion separator
             self.oled.vline(64, 16, 64, 2)
-            #Main right section, usable space: 64 * 112
+            # Main right section, usable space: 64 * 112
             num1 = framebuf.FrameBuffer(self.ui_number_converter(self._speed), 32, 96, framebuf.MONO_HLSB)
             num2 = framebuf.FrameBuffer(self.ui_number_converter(self._speed, 1), 32, 96, framebuf.MONO_HLSB)
-            self.oled.blit(num1, 64, -18, 0) #x,y,key blit draws over cur fb with new
+            self.oled.blit(num1, 64, -18, 0)  # x,y,key blit draws over cur fb with new
             self.oled.blit(num2, 96, -18, 0)
             self.oled.show()
-    
-    class StatsPage: #stub
+
+    class StatsPage:  # stub
         def __init__(self, oled):
             self.oled = oled
             self.current = False
-            
+
         def render(self):
             if not self.current:
                 return
@@ -245,7 +252,6 @@ class App:
             # Section separator
             self.oled.vline(96, 16, 64, 1)
             self.oled.show()
-    
 
     def __init__(self, oled):
         self.current_page = None
@@ -258,14 +264,15 @@ class App:
         self.current_page = page
         self.current_page.current = False
         self.current_page.render()
-        
+
     def get_current_page(self):
         return self.current_page
-    
+
     def render_current_page(self):
         self.oled.fill(0)
         self.current_page.render()
         self.oled.show()
+
 
 # Speed = distance / time, we will meassure the speed every second, distance will be the wheel rim diameter
 led = Pin(25, Pin.OUT)
@@ -273,18 +280,28 @@ output_line = Pin(0, Pin.OUT)
 input_line = Pin(1, Pin.IN, Pin.PULL_DOWN)
 
 # Set up display
-i2c = I2C(0, sda = Pin(4), scl = Pin(5), freq=400000)
-i2c.scan()
-utime.sleep(0.1)
-oled = SSD1306_I2C(128, 64, i2c)
-app = App(oled)
+i2c: I2C
+oled: SSD1306_I2C
+app: App
+try:
+    i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400000)
+    utime.sleep(0.1)
+    oled = SSD1306_I2C(128, 64, i2c)
+    app = App(oled)
+except Exception as err:
+    for i in range(6):
+        led.toggle()
+        time.sleep(0.1)
+    print("EIO Error. This usually means that there is a bad/incorect connection to oled display or peripherals.")
+
 speed_calculate_algorithm = SpeedAlgorithm.FIXED_PERIOD
 
-wheel_diameter = 0.9 #m
-wheel_length = math.pi * wheel_diameter #m
-speed = 0 #mph
-ride_time = 0 #s
-distance = 0 #m
+wheel_diameter = 0.9  # m
+wheel_length = math.pi * wheel_diameter  # m
+speed = 0  # mph
+ride_time = 0  # s
+distance = 0  # m
+
 
 def speed_result_callback(new_speed, period, new_distance):
     global speed
@@ -313,8 +330,9 @@ try:
 
     # Init whatever speed calc algorithm we decide on using
     speed_calculate_algorithm.start(speed_result_callback, wheel_length, input_line, led)
-except BaseException as error:    
-    print("[FATAL]: Unrecoverable error in program main, please shut down immediately and contact developers!\n" + str(error))
+except BaseException as error:
+    print("[FATAL]: Unrecoverable error in program main, please shut down immediately and contact developers!\n" + str(
+        error))
     oled.text("[FATAL] UNRECOVERABLE ERROR:", 0, 0)
     err_formatted = str(error).split("\n")
     for i in range(0, len(err_formatted)):
