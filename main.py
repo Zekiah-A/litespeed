@@ -87,10 +87,11 @@ class SpeedAlgorithm():
             # Max len 10 (average_len), list of ms times, only use time.ticks_diff() and time.ticks_add(), to calc, or errs may occur
             self.previous_speed_times = [SpeedTime(0, time.ticks_ms())]
             self.previous_len_max = 10
-            self.input_line.irq(handler=None)
+            self.input_line.irq(handler=self.on_lines_contact)
             self.stopped = False
         
         def on_lines_contact(self, pin):
+          self.input_line.irq(handler=None)
           if len(self.previous_speed_times) >= self.previous_len_max:
             self.previous_speed_times = self.previous_speed_times[1:] # Shift oldest previous speed/time out of the list
           curr_time = time.ticks_ms()
@@ -101,6 +102,7 @@ class SpeedAlgorithm():
           # Now need to iterate through every previous speed, finding the average speed in tye last 10 wheel rotations
           
           # self.result_callback()
+          self.input_line.irq(handler=self.on_lines_contact)
         
         def stop(self):
             self.stopped = True
