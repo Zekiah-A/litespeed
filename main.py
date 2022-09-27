@@ -24,6 +24,11 @@ numbers = [
     bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfa\x00\x00\x03\xfe\x00\x00\x0f\xff\x80\x00\x0f\xff\xc0\x00?\xff\xe0\x00?\x8f\xe0\x00~#\xe0\x00|\x01\xf0\x00\xf8\x01\xf0\x00\xf8\x00\xf0\x01\xf0\x00\xf8\x01\xf0\x00\xf8\x01\xe0\x00x\x03\xe0\x00\xf8\x01\xe0\x00x\x03\xc0\x00x\x03\xe0\x00\xf8\x03\xc0\x00x\x03\xc0\x00x\x03\xc0\x00\xf8\x03\xc0\x00\xf8\x03\xe0\x00\xf8\x03\xc0\x00\xf8\x03\xe0\x01\xf8\x03\xe0\x01\xf0\x03\xe0\x03\xf8\x01\xe0\x07\xf0\x01\xf0\x0b\xf0\x01\xfc/\xf0\x00\xff\xfe\xf0\x00\xff\xfd\xf0\x00\x7f\xf9\xf0\x00?\xf1\xe0\x00\x17\xa1\xe0\x00\x04\x83\xe0\x00\x00\x03\xe0\x00\x00\x03\xe0\x00\x00\x03\xc0\x00\x00\x07\xc0\x00\x00\x07\xc0\x00\x00\x07\x80\x00\x00\x0f\x80\x00\x00\x0f\x80\x00\x00\x0f\x00\x00\x00\x1f\x00\x00\x00?\x00\x00\x00>\x00\x00\x00~\x00\x00\x01\xfc\x00\x08\x02\xf8\x00\x1f\xbf\xf8\x00\x0f\xef\xf0\x00\x1f\xff\xe0\x00\x0f\xff\x80\x00\x0f\xff\x00\x00\x05h\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 ]
 
+class SpeedTime:
+  def __init__(speed, time):
+    self.speed = speed
+    self.time = time
+
 #Static
 class SpeedAlgorithm():
     FIXED_PERIOD = self.FixedPeriod()
@@ -48,15 +53,14 @@ class SpeedAlgorithm():
             self.input_line.irq(trigger=Pin.IRQ_RISING, handler=self.on_lines_contact)
             _thread.start_new_thread(self.second_tick, ())
         
-
         # We reenable the interrupt so multiple can not trigger at once
         def on_lines_contact(self, pin):
             self.input_line.irq(handler=None)
             self.led.toggle()
-            time.sleep(contact_cooldown)
+            time.sleep(self.contact_cooldown)
             self.led.toggle()
             self.this_period += 1
-            self.input_line.irq(handler=on_lines_contact)
+            self.input_line.irq(handler=self.on_lines_contact)
         
         # Main fixed period tick, reports data back to program
         def second_tick(self):
@@ -69,16 +73,42 @@ class SpeedAlgorithm():
             # If stopped, then we terminate this thread, WARNING: I should be using multiprocessing package instead of creating new threads!
             return # hopefully this terminates the thread
 
-        def stop():
+        def stop(self):
             self.stopped = True
             self.input_line.irq(handler=None)
             
     class RollingAverage:
         def start(self, result_callback, wheel_length, input_line, led):
-            return
+            self.result_callback = result_callback
+            self.wheel_length = wheel_length
+            self.input_line = input_line
+            self.led = led
+            
+            # Max len 10 (average_len), list of ms times, only use time.ticks_diff() and time.ticks_add(), to calc, or errs may occur
+            self.previous_speed_times = [SpeedTime(0, time.ticks_ms())]
+            self.previous_len_max = 10
+            self.input_line.irq(handler=None)
+            self.stopped = False
         
-        def stop():
+        def on_lines_contact(self, pin):
+          if len(self.previous_speed_times) >= self.previous_len_max:
+            self.previous_speed_times = self.previous_speed_times[1:] # Shift oldest previous speed/time out of the list
+          curr_time = time.ticks_ms()
+          time_change = time.ticks_diff(curr_time, self.previous_speed_times[len(self.previous_speed_times) - 1].time)
+          new_speed = 2.23694 * self.wheel_length * time_change
+          self.previous_speed_times.append(SpeedTime(new_speed, curr_time))
+          
+          # Now need to iterate through every previous speed, finding the average speed in tye last 10 wheel rotations
+          
+          # self.result_callback()
+        
+        def stop(self):
+            self.stopped = True
             return
+    
+    def stop_all(self):
+      FIXED_PERIOD.stopped = True
+      ROLLING_AVERAGE.stopped = True
 
 class Button:
     def __init__(x, y, oled):
