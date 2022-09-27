@@ -167,7 +167,7 @@ class App:
         @property
         def time(self):
             raise Exception("Property is setter only! (time)")
-        
+
         @time.setter #time setter
         def time(self, value):
             self._time = value
@@ -179,7 +179,7 @@ class App:
 
         @distance.setter
         def distance(self, value):
-            self._distance = value;
+            self._distance = value
             self.render()
             
         def __init__(self, oled):
