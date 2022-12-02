@@ -261,8 +261,12 @@ class App:
         self.oled = oled
 
     def set_current_page(self, page):
-        self.current_page = page
+        # Set previous page to no longer current
         self.current_page.current = False
+
+        # Set up current page as current
+        self.current_page = page
+        self.current_page.current = True
         self.current_page.render()
 
     def get_current_page(self):
@@ -329,7 +333,7 @@ try:
     print("started set voltage of 1 on Pin 0\n")
 
     # Init whatever speed calc algorithm we decide on using
-    speed_calculate_algorithm.start(speed_result_callback, wheel_length, input_line, led)
+    speed_calculate_algorithm.start(speed_result_callback, wheel_length, input_line, led) # COMMENT THIS OUT WHEN IN WOWKI SIMULATOR, ELSE A PROGRAM CRASH MAY OCCUR
 except BaseException as error:
     print("[FATAL]: Unrecoverable error in program main, please shut down immediately and contact developers!\n" + str(
         error))
