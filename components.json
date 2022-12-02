@@ -1,0 +1,30 @@
+
+{
+  "version": 1,
+  "author": "Zekiah",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-pi-pico",
+      "id": "pico",
+      "top": 0,
+      "left": 0,
+      "attrs": { "env": "micropython-20220117-v1.18" }
+    },
+    { "type": "board-ssd1306", "id": "oled1", "top": -116.46, "left": -162.97, "attrs": {} },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": -100.07,
+      "left": 30.13,
+      "attrs": { "color": "green" }
+    }
+  ],
+  "connections": [
+    [ "oled1:GND", "pico:GND.7", "black", [ "v0" ] ],
+    [ "oled1:SDA", "pico:GP4", "green", [ "v0" ] ],
+    [ "oled1:SCL", "pico:GP5", "green", [ "v0" ] ],
+    [ "btn1:1.l", "pico:GP0", "green", [ "h0" ] ],
+    [ "btn1:1.r", "pico:GP1", "green", [ "v0" ] ]
+  ]
+}
