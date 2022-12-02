@@ -262,7 +262,8 @@ class App:
 
     def set_current_page(self, page):
         # Set previous page to no longer current
-        self.current_page.current = False
+        if (self.current_page != None):
+            self.current_page.current = False
 
         # Set up current page as current
         self.current_page = page
